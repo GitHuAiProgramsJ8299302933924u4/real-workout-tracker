@@ -468,6 +468,8 @@
         }
 
         function addExercise(name) {
+            // Save current values before adding new exercise
+            saveCurrentFormData();
             currentWorkout.exercises.push({
                 name: name,
                 sets: [{ reps: '', weight: '', form: 'Standard' }]
@@ -478,26 +480,35 @@
         function addCustomExercise() {
             const name = prompt('Übungsname:');
             if (name && name.trim()) {
+                saveCurrentFormData();
                 addExercise(name.trim());
             }
         }
 
         function removeExercise(idx) {
+            // Save current values before re-rendering
+            saveCurrentFormData();
             currentWorkout.exercises.splice(idx, 1);
             renderWorkoutForm();
         }
 
         function addSet(exIdx) {
+            // Save current values before re-rendering
+            saveCurrentFormData();
             currentWorkout.exercises[exIdx].sets.push({ reps: '', weight: '', form: 'Standard' });
             renderWorkoutForm();
         }
 
         function removeSet(exIdx, setIdx) {
+            // Save current values before re-rendering
+            saveCurrentFormData();
             currentWorkout.exercises[exIdx].sets.splice(setIdx, 1);
             renderWorkoutForm();
         }
 
         function addRun() {
+            // Save current values before re-rendering
+            saveCurrentFormData();
             currentWorkout.runs.push({
                 distance: '',
                 time: { hours: '', minutes: '', seconds: '' },
@@ -507,8 +518,72 @@
         }
 
         function removeRun(idx) {
+            // Save current values before re-rendering
+            saveCurrentFormData();
             currentWorkout.runs.splice(idx, 1);
             renderWorkoutForm();
+        }
+
+        function addExercise(name) {
+            // Save current values before adding new exercise
+            saveCurrentFormData();
+            currentWorkout.exercises.push({
+                name: name,
+                sets: [{ reps: '', weight: '', form: 'Standard' }]
+            });
+            renderWorkoutForm();
+        }
+
+        function removeExercise(idx) {
+            // Save current values before re-rendering
+            saveCurrentFormData();
+            currentWorkout.exercises.splice(idx, 1);
+            renderWorkoutForm();
+        }
+
+        // New helper function to save current form data
+        function saveCurrentFormData() {
+            if (!currentWorkout) return;
+            
+            // Save strength workout data
+            if (['push', 'pull', 'legs', 'abs'].includes(currentWorkout.type)) {
+                currentWorkout.exercises.forEach((ex, exIdx) => {
+                    ex.sets.forEach((set, setIdx) => {
+                        const reps = document.getElementById('reps_' + exIdx + '_' + setIdx);
+                        const weight = document.getElementById('weight_' + exIdx + '_' + setIdx);
+                        const form = document.getElementById('form_' + exIdx + '_' + setIdx);
+                        if (reps) set.reps = reps.value;
+                        if (weight) set.weight = weight.value;
+                        if (form) set.form = form.value;
+                    });
+                });
+            }
+            
+            // Save running data
+            if (currentWorkout.type === 'running') {
+                currentWorkout.runs.forEach((run, idx) => {
+                    const dist = document.getElementById('dist_' + idx);
+                    const h = document.getElementById('h_' + idx);
+                    const m = document.getElementById('m_' + idx);
+                    const s = document.getElementById('s_' + idx);
+                    const spr = document.getElementById('spr_' + idx);
+                    if (dist) run.distance = dist.value;
+                    if (h) run.time.hours = h.value;
+                    if (m) run.time.minutes = m.value;
+                    if (s) run.time.seconds = s.value;
+                    if (spr) run.sprints = spr.value;
+                });
+            }
+            
+            // Save kickboxing data
+            if (currentWorkout.type === 'kickboxing') {
+                const h = document.getElementById('kb_h');
+                const m = document.getElementById('kb_m');
+                const s = document.getElementById('kb_s');
+                if (h) currentWorkout.duration.hours = h.value;
+                if (m) currentWorkout.duration.minutes = m.value;
+                if (s) currentWorkout.duration.seconds = s.value;
+            }
         }
 
         function saveWorkout() {
